@@ -1,10 +1,12 @@
 'use strict';
 
+// @ts-ignore
 const puppeteer = require('puppeteer');
 // @ts-ignore
 const csso = require('csso');
 // @ts-ignore
 const csstree = require('css-tree');
+// @ts-ignore
 const cheerio = require('cheerio');
 const utils = require('./utils');
 const { createTracker } = require('./tracker');
