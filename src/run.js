@@ -456,6 +456,12 @@ const minimalcss = async options => {
           return;
         }
 
+        if (!node.prelude.children) {
+          // delete malformed rule
+          list.remove(item);
+          return;
+        }
+
         node.prelude.children.forEach((node, item, list) => {
           // Translate selector's AST to a string and filter pseudos from it
           // This changes things like `a.button:active` to `a.button`
