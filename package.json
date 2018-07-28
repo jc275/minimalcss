@@ -25,7 +25,7 @@
   "dependencies": {
     "cheerio": "1.0.0-rc.2",
     "css-tree": "1.0.0-alpha.28",
-    "csso": "~3.5.0",
+    "csso": "ianvonholt/csso",
     "filesize": "^3.5.11",
     "minimist": "^1.2.0",
     "puppeteer": "^1.4.0"
