@@ -183,7 +183,11 @@ const processPage = ({
           request.abort();
         } else if (!loadimages && resourceType === 'image') {
           request.abort();
+        } else if (resourceType === 'media') {
+          request.abort();
         } else if (resourceType === 'font') {
+          request.abort();
+        } else if (resourceType === 'xhr') {
           request.abort();
         } else if (stylesheetAsts[requestUrl]) {
           // no point downloading this again
