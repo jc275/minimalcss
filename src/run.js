@@ -128,7 +128,7 @@ const processPage = ({
     let fulfilledPromise = false;
 
     const tracker = createTracker(page);
-    const safeReject = error => {
+    const safeReject = (error, fatal) => {
       if (!fulfilledPromise) {
         if (error.message.startsWith('Navigation Timeout Exceeded')) {
           const urls = tracker.urls();
@@ -140,8 +140,11 @@ const processPage = ({
             error.message += `\nFor ${urls[0]}`;
           }
         }
-        tracker.dispose();
-        reject(error);
+        console.warn({ error })
+        if (fatal) {
+          tracker.dispose();
+          reject(error);
+        }
       }
     };
 
@@ -270,7 +273,10 @@ const processPage = ({
         await page.setJavaScriptEnabled(false);
         response = await page.goto(pageUrl);
         if (!isOk(response)) {
-          return safeReject(new Error(`${response.status()} on ${pageUrl}`));
+          return safeReject(
+            new Error(`${response.status()} on ${pageUrl}`),
+            true // fatal
+          );
         }
         const htmlVanilla = await page.content();
         doms.push(cheerio.load(htmlVanilla));
@@ -294,7 +300,8 @@ const processPage = ({
       response = await page.goto(pageUrl, { waitUntil: 'networkidle0' });
       if (!isOk(response)) {
         return safeReject(
-          new Error(`${response.status()} on ${pageUrl} (second time)`)
+          new Error(`${response.status()} on ${pageUrl} (second time)`),
+          true // fatal
         );
       }
       const evalWithJavascript = await page.evaluate(() => {
@@ -339,7 +346,7 @@ const processPage = ({
         resolve();
       }
     } catch (e) {
-      return safeReject(e);
+      return safeReject(e, true); // fatal
     }
   });
 
