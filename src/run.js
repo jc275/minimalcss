@@ -418,8 +418,8 @@ const minimalcss = async options => {
     );
   });
   if (missingASTs.length) {
-    throw new Error(
-      `Found stylesheets that failed to download (${missingASTs})`
+    console.warn(
+      `Found stylesheets that failed to download: (${missingASTs})`
     );
   }
 
