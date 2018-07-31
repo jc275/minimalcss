@@ -140,10 +140,11 @@ const processPage = ({
             error.message += `\nFor ${urls[0]}`;
           }
         }
-        console.warn({ error })
         if (fatal) {
           tracker.dispose();
           reject(error);
+        } else {
+          console.warn(error)
         }
       }
     };
