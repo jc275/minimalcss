@@ -144,7 +144,7 @@ const processPage = ({
           tracker.dispose();
           reject(error);
         } else {
-          console.warn(error)
+          console.warn(error);
         }
       }
     };
@@ -216,7 +216,7 @@ const processPage = ({
         
         // Log third-party content for possible future blacklisting
         if (!responseUrl.startsWith(pageUrl)) {
-          console.log(resourceType, responseUrl)
+          console.log(resourceType, responseUrl);
         }
 
         if (response.status() >= 400) {
@@ -236,7 +236,7 @@ const processPage = ({
           response.text().then(text => {
             // Double semicolons can crash csso.
             while (/;\s*;/.test(text)) {
-              text = text.replace(/;\s*;/g, ';')
+              text = text.replace(/;\s*;/g, ';');
             }
             const ast = csstree.parse(text);
             csstree.walk(ast, node => {
