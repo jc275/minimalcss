@@ -462,6 +462,9 @@ const minimalcss = async options => {
     }
     const ast = stylesheetAsts[href];
 
+    // Missing stylesheet would crash csstree.
+    if (!ast) return;
+
     csstree.walk(ast, {
       visit: 'Rule',
       enter: function(node, item, list) {
