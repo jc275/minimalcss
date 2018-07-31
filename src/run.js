@@ -212,6 +212,12 @@ const processPage = ({
       page.on('response', response => {
         const responseUrl = response.url();
         const resourceType = response.request().resourceType();
+        
+        // Log third-party content for possible future blacklisting
+        if (!responseUrl.startsWith(pageUrl)) {
+          console.log(resourceType, responseUrl)
+        }
+
         if (response.status() >= 400) {
           return safeReject(
             new Error(`${response.status()} on ${responseUrl}`)
