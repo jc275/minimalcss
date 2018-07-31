@@ -330,7 +330,10 @@ const processPage = ({
             link.media !== 'print' &&
             !link.href.toLowerCase().startsWith('data:')
           ) {
-            hrefs.push(link.href);
+            // Fragments are omitted from request.url() and response.url(),
+            // so we also need to strip them here, otherwise the hrefs
+            // won't always match when we check for missing ASTs.
+            hrefs.push(link.href.replace(/#.*$/, ''));
           }
         });
         return {
