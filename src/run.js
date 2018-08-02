@@ -14,6 +14,8 @@ const url = require('url');
 
 const isOk = response => response.ok() || response.status() === 304;
 
+const skippableResourceTypes = ['font', 'media', 'ping', 'xhr'];
+
 /**
  * Take in a csstree AST, mutate it and return a csstree AST.
  * The mutation is about:
@@ -187,11 +189,7 @@ const processPage = ({
           request.abort();
         } else if (!loadimages && resourceType === 'image') {
           request.abort();
-        } else if (resourceType === 'media') {
-          request.abort();
-        } else if (resourceType === 'font') {
-          request.abort();
-        } else if (resourceType === 'xhr') {
+        } else if (skippableResourceTypes.includes(resourceType)) {
           request.abort();
         } else if (stylesheetAsts[requestUrl]) {
           // no point downloading this again
