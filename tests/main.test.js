@@ -230,16 +230,8 @@ test('handles extra semicolons', async () => {
   // [TypeError: Cannot read property '0' of undefined]
   // https://github.com/peterbe/minimalcss/issues/243
   // https://github.com/css/csso/issues/378
-  expect.assertions(2);
-  let error;
-  try {
-    const { finalCss } = await runMinimalcss('extra-semicolons');
-    expect(finalCss).toMatch('a{color:red}');
-  } catch (e) {
-    error = e;
-  } finally {
-    expect(error).toBeUndefined();
-  }
+  const { finalCss } = await runMinimalcss('extra-semicolons');
+  expect(finalCss).toMatch('a{color:red}');
 });
 
 test('timeout error for page', async () => {
@@ -268,14 +260,6 @@ test('handles stylesheet hrefs with url fragments', async () => {
   // Url #fragments are omitted from puppeteer's response.url().
   // So, unless they're stripped from stylesheet hrefs, any href
   // that contains a #fragment would throw a missing AST error.
-  expect.assertions(2);
-  let error;
-  try {
-    const { finalCss } = await runMinimalcss('url-fragment');
-    expect(finalCss).toMatch('p{color:red}');
-  } catch (e) {
-    error = e;
-  } finally {
-    expect(error).toBeUndefined();
-  }
+  const { finalCss } = await runMinimalcss('url-fragment');
+  expect(finalCss).toMatch('p{color:red}');
 });
