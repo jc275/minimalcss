@@ -1,3 +1,37 @@
+* Stylesheet `link` tags whose `href` URL contains a `#fragment-example`
+  would cause an error because puppeteer doesn't include it in the
+  `response.url()`.
+  [pull#255](https://github.com/peterbe/minimalcss/pull/255)
+  Thanks @jc275
+
+
+# 0.7.9
+
+* New option `ignoreJSErrors` to ignore possible JavaScript errors.
+  [pull#253](https://github.com/peterbe/minimalcss/pull/253)
+  Thanks @jc275
+
+# 0.7.8
+
+* New option `ignoreCSSErrors` to ignore possible CSS parsing errors.
+  [pull#249](https://github.com/peterbe/minimalcss/pull/249)
+  Thanks @stereobooster
+
+# 0.7.7
+
+* Throw explicit errors on invalid CSS
+  [pull#237](https://github.com/peterbe/minimalcss/pull/237)
+  Thanks @harrygreen
+
+# 0.7.6
+
+* List what timed out. Useful for debugging which resources failed.
+  [pull#199](https://github.com/peterbe/minimalcss/pull/199)
+  Thanks @stereobooster
+
+* Upgrade to puppeteer 1.4.0
+  [pull#214](https://github.com/peterbe/minimalcss/pull/214)
+
 # 0.7.5
 
 * Ability to pass an object of options to `csso.compress()`
