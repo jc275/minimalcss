@@ -127,20 +127,20 @@ const processPage = ({
 
     const tracker = createTracker(page);
     const safeReject = error => {
-      if (!fulfilledPromise) {
-        if (error.message.startsWith('Navigation Timeout Exceeded')) {
-          const urls = tracker.urls();
-          if (urls.length > 1) {
-            error.message += `\nTracked URLs that have not finished: ${urls.join(
-              ', '
-            )}`;
-          } else if (urls.length > 0) {
-            error.message += `\nFor ${urls[0]}`;
-          }
+      if (fulfilledPromise) return;
+      fulfilledPromise = true;
+      if (error.message.startsWith('Navigation Timeout Exceeded')) {
+        const urls = tracker.urls();
+        if (urls.length > 1) {
+          error.message += `\nTracked URLs that have not finished: ${urls.join(
+            ', '
+          )}`;
+        } else if (urls.length > 0) {
+          error.message += `\nFor ${urls[0]}`;
         }
-        tracker.dispose();
-        reject(error);
       }
+      tracker.dispose();
+      reject(error);
     };
 
     const debug = options.debug || false;
@@ -259,7 +259,11 @@ const processPage = ({
       });
 
       page.on('pageerror', error => {
-        safeReject(error);
+        if (options.ignoreJSErrors) {
+          console.warn(error);
+        } else {
+          safeReject(error);
+        }
       });
 
       let response;
@@ -311,7 +315,10 @@ const processPage = ({
             link.media !== 'print' &&
             !link.href.toLowerCase().startsWith('data:')
           ) {
-            hrefs.push(link.href);
+            // Fragments are omitted from puppeteer's response.url(),
+            // so we need to strip them here, otherwise the hrefs
+            // won't always match when we check for missing ASTs.
+            hrefs.push(link.href.split('#')[0]);
           }
         });
         return {
@@ -344,7 +351,7 @@ const processPage = ({
 
 /**
  *
- * @param {{ urls: Array<string>, debug: boolean, loadimages: boolean, skippable: function, browser: any, userAgent: string, withoutjavascript: boolean, viewport: any, puppeteerArgs: Array<string>, cssoOptions: Object }} options
+ * @param {{ urls: Array<string>, debug: boolean, loadimages: boolean, skippable: function, browser: any, userAgent: string, withoutjavascript: boolean, viewport: any, puppeteerArgs: Array<string>, cssoOptions: Object, ignoreCSSErrors?: boolean, ignoreJSErrors?: boolean }} options
  * @return Promise<{ finalCss: string, stylesheetContents: { [key: string]: string } }>
  */
 const minimalcss = async options => {
@@ -461,26 +468,38 @@ const minimalcss = async options => {
           return;
         }
 
-        node.prelude.children.forEach((node, item, list) => {
-          // Translate selector's AST to a string and filter pseudos from it
-          // This changes things like `a.button:active` to `a.button`
-          const selectorString = utils.reduceCSSSelector(
-            csstree.generate(node)
-          );
-          if (selectorString in decisionsCache === false) {
-            decisionsCache[selectorString] = isSelectorMatchToAnyElement(
-              selectorString
-            );
+        if (!node.prelude.children) {
+          const cssErrorMessage = `Invalid CSS found while evaluating ${href}: "${
+            node.prelude.value
+          }"`;
+          if (options.ignoreCSSErrors) {
+            console.warn(cssErrorMessage);
+            list.remove(item);
+          } else {
+            throw new Error(cssErrorMessage);
           }
-          if (!decisionsCache[selectorString]) {
-            // delete selector from a list of selectors
+        } else {
+          node.prelude.children.forEach((node, item, list) => {
+            // Translate selector's AST to a string and filter pseudos from it
+            // This changes things like `a.button:active` to `a.button`
+            const selectorString = utils.reduceCSSSelector(
+              csstree.generate(node)
+            );
+            if (selectorString in decisionsCache === false) {
+              decisionsCache[selectorString] = isSelectorMatchToAnyElement(
+                selectorString
+              );
+            }
+            if (!decisionsCache[selectorString]) {
+              // delete selector from a list of selectors
+              list.remove(item);
+            }
+          });
+
+          if (node.prelude.children.isEmpty()) {
+            // delete rule from a list
             list.remove(item);
           }
-        });
-
-        if (node.prelude.children.isEmpty()) {
-          // delete rule from a list
-          list.remove(item);
         }
       }
     });
